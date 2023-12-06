@@ -146,6 +146,9 @@ class JunitParser(FileParser):
                         self.env.elog(error)
                         raise Exception(error)
                     case_fields_dict, error = FieldsParser.resolve_fields(case_fields)
+                    if 'custom_automation_id' in case_fields_dict.keys():
+                        automation_id = case_fields_dict['custom_automation_id']
+                        del case_fields_dict['custom_automation_id']
                     if error:
                         self.env.elog(error)
                         raise Exception(error)

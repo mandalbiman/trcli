@@ -14,6 +14,8 @@ from trcli.data_classes.dataclass_testrail import TestRailSuite, TestRailCase, P
 from trcli.data_providers.api_data_provider import ApiDataProvider
 from trcli.settings import MAX_WORKERS_ADD_RESULTS, MAX_WORKERS_ADD_CASE
 
+CUSTOM_AUTOMATION_ID = "custom_automation_ref"
+
 
 class ApiRequestHandler:
     """Sends requests based on DataProvider bodies"""
@@ -48,7 +50,7 @@ class ApiRequestHandler:
         if not response.error_message:
             fields: list = response.response_text
             automation_id_field = next(
-                filter(lambda x: x["system_name"] == "custom_automation_id", fields),
+                filter(lambda x: x["system_name"] == CUSTOM_AUTOMATION_ID, fields),
                 None
             )
             if automation_id_field:
@@ -294,8 +296,8 @@ class ApiRequestHandler:
         if self.environment.case_matcher == MatchersParser.AUTO:
             test_cases_by_aut_id = {}
             for case in returned_cases:
-                aut_case_id = case["custom_automation_id"]
-                aut_case_id = aut_case_id if not aut_case_id else html.unescape(case["custom_automation_id"])
+                aut_case_id = case[CUSTOM_AUTOMATION_ID]
+                aut_case_id = aut_case_id if not aut_case_id else html.unescape(case[CUSTOM_AUTOMATION_ID])
                 test_cases_by_aut_id[aut_case_id] = case
             test_case_data = []
             for section in self.suites_data_from_provider.testsections:
@@ -306,7 +308,7 @@ class ApiRequestHandler:
                             "case_id": case["id"],
                             "section_id": case["section_id"],
                             "title": case["title"],
-                            "custom_automation_id": test_case.custom_automation_id
+                            CUSTOM_AUTOMATION_ID: test_case.custom_automation_id
                         })
                     else:
                         missing_cases_number += 1
@@ -614,8 +616,8 @@ class ApiRequestHandler:
 
     def _add_case_and_update_data(self, case: TestRailCase) -> APIClientResult:
         case_body = case.to_dict()
-        if self.environment.case_matcher != MatchersParser.AUTO and "custom_automation_id" in case_body:
-            case_body.pop("custom_automation_id")
+        if self.environment.case_matcher != MatchersParser.AUTO and CUSTOM_AUTOMATION_ID in case_body:
+            case_body.pop(CUSTOM_AUTOMATION_ID)
         response = self.client.send_post(f"add_case/{case_body.pop('section_id')}", case_body)
         if response.status_code == 200:
             case.case_id = response.response_text["id"]

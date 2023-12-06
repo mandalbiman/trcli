@@ -189,7 +189,7 @@ class ApiDataProvider:
                     case
                     for sublist in testcases
                     for case in sublist
-                    if case.custom_automation_id == case_updater["custom_automation_id"]
+                    if case.custom_automation_id == case_updater["custom_automation_ref"]
                 ),
                 None,
             )

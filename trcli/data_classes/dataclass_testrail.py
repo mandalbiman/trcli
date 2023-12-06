@@ -134,7 +134,7 @@ class TestRailCase:
     refs: str = field(default=None, skip_if_default=True)
     case_fields: Optional[dict] = field(default_factory=dict, skip=True)
     result: TestRailResult = field(default=None, metadata={"serde_skip": True})
-    custom_automation_id: str = field(default=None, skip_if_default=True)
+    custom_automation_id: str = field(rename='custom_automation_ref', default=None, skip_if_default=True)
     # Uncomment if we want to support separated steps in cases in the future
     # custom_steps_separated: list[TestRailSeparatedStep] = field(default_factory=list, skip_if_default=True)
 
