@@ -20,15 +20,18 @@ Installation
 If you already have [Python](https://www.python.org/) and [pip](https://pip.pypa.io) installed,
 you can simply run the command below in your terminal. We recommend using **Python 3.10** or newer.
 ```
-$ pip install trcli
+pip install trcli
 ```
 
 To verify the installation was successful, you can run the `trcli` command.
 
 ```shell
-$ trcli
-TestRail CLI v1.6.2
-Copyright 2023 Gurock Software GmbH - www.gurock.com
+trcli
+```
+You should get something like this:
+```
+TestRail CLI v1.9.0
+Copyright 2024 Gurock Software GmbH - www.gurock.com
 Supported and loaded modules:
     - parse_junit: JUnit XML Files (& Similar)
     - parse_robot: Robot Framework XML Files
@@ -39,8 +42,8 @@ CLI general reference
 --------
 ```shell
 $ trcli --help
-TestRail CLI v1.6.2
-Copyright 2023 Gurock Software GmbH - www.gurock.com
+TestRail CLI v1.9.0
+Copyright 2024 Gurock Software GmbH - www.gurock.com
 Usage: trcli [OPTIONS] COMMAND [ARGS]...
 
   TestRail CLI
@@ -83,7 +86,9 @@ In the next sections you will find information on how to use the TestRail CLI fo
 
 ### Reference
 ```shell
-$ trcli parse_junit --help
+trcli parse_junit --help
+```
+```shell
 Usage: trcli parse_junit [OPTIONS]
 
   Parse report files and upload results to TestRail
@@ -249,8 +254,8 @@ providing you with a solid base of test cases, which you can further expand on T
 ### Reference
 ```shell
 $ trcli parse_openapi --help
-TestRail CLI v1.5.0
-Copyright 2021 Gurock Software GmbH - www.gurock.com
+TestRail CLI v1.9.0
+Copyright 2024 Gurock Software GmbH - www.gurock.com
 Usage: trcli parse_openapi [OPTIONS]
 
   Parse OpenAPI spec and create cases in TestRail

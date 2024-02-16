@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import requests
-from typing import Union, Callable
+from typing import Union, Callable, Dict, List
 from time import sleep
 
 import urllib3
@@ -22,7 +22,7 @@ class APIClientResult:
     error_message - custom error message when -1 was returned in status_code"""
 
     status_code: int
-    response_text: Union[dict, str, list]
+    response_text: Union[Dict, str, List]
     error_message: str
 
 
@@ -132,7 +132,12 @@ class APIClient:
                     retry_time = float(response.headers["Retry-After"])
                     sleep(retry_time)
                 try:
-                    response_text = response.json()
+                    # workaround for buggy legacy TR server version response
+                    if response.content.startswith(b"USER AUTHENTICATION SUCCESSFUL!\n"):
+                        response_text = response.content.replace(b"USER AUTHENTICATION SUCCESSFUL!\n", b"", 1)
+                        response_text = json.loads(response_text)
+                    else:
+                        response_text = response.json()
                     error_message = response_text.get("error", "")
                 except (JSONDecodeError, ValueError):
                     response_text = str(response.content)

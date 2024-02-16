@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from serde.json import to_dict
 
@@ -7,7 +7,7 @@ from trcli.data_classes.dataclass_testrail import TestRailSuite
 
 class ApiDataProvider:
     """
-    ApiPostProvider is a place where you can convert TestRailSuite dataclass to bodies for API requests
+    ApiDataProvider is a place where you can convert TestRailSuite dataclass to bodies for API requests
     """
 
     def __init__(
@@ -61,8 +61,8 @@ class ApiDataProvider:
                     bodies.append(case)
         return bodies
 
-    def add_run(self, run_name: str, case_ids=None, milestone_id=None):
-        """Return body for adding a run."""
+    def add_run(self, run_name: None, case_ids=None, milestone_id=None):
+        """Return body for adding or updating a run."""
         if case_ids is None:
             case_ids = [
                 int(case)
@@ -78,14 +78,16 @@ class ApiDataProvider:
         ]
         if self.run_description:
             properties.insert(0, f"{self.run_description}\n")
-        return {
-            "name": run_name,
+        body = {
             "suite_id": self.suites_input.suite_id,
-            "description": '\n'.join(properties),
+            "description": "\n".join(properties),
             "milestone_id": milestone_id,
             "include_all": False,
             "case_ids": case_ids
         }
+        if run_name is not None:
+            body["name"] = run_name
+        return body
 
     def add_results_for_cases(self, bulk_size):
         """Return bodies for adding results for cases. Returns bodies for results that already have case ID."""
@@ -107,9 +109,9 @@ class ApiDataProvider:
 
     def update_data(
         self,
-        suite_data: List[dict] = None,
-        section_data: List[dict] = None,
-        case_data: List[dict] = None,
+        suite_data: List[Dict] = None,
+        section_data: List[Dict] = None,
+        case_data: List[Dict] = None,
     ):
         """Here you can provide responses from service after creating resources.
         This way TestRailSuite data will be updated by ID's of new created resources.
@@ -121,7 +123,7 @@ class ApiDataProvider:
         if case_data is not None:
             self.__update_case_data(case_data)
 
-    def __update_suite_data(self, suite_data: List[dict]):
+    def __update_suite_data(self, suite_data: List[Dict]):
         """suite_data comes from add_suite API response
         example:
             {
@@ -144,7 +146,7 @@ class ApiDataProvider:
         else:
             return True
 
-    def __update_section_data(self, section_data: List[dict]):
+    def __update_section_data(self, section_data: List[Dict]):
         """section_data comes from add_section API response
         example:
             {
@@ -171,7 +173,7 @@ class ApiDataProvider:
         for section in self.suites_input.testsections:
             section.parent_id = parent_section_id
 
-    def __update_case_data(self, case_data: List[dict]):
+    def __update_case_data(self, case_data: List[Dict]):
         """case_data comes from add_case API response
         example:
             {

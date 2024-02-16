@@ -1,7 +1,7 @@
 import trcli
 import enum
 
-PARSE_JUNIT_FAULT_MAPPING = dict(
+PARSE_JUNIT_OR_ROBOT_FAULT_MAPPING = dict(
     missing_title="Please give your Test Run a title using the --title argument."
 )
 
@@ -65,7 +65,7 @@ PROMPT_MESSAGES = dict(
 )
 
 TOOL_VERSION = f"""TestRail CLI v{trcli.__version__}
-Copyright 2023 Gurock Software GmbH - www.gurock.com"""
+Copyright 2024 Gurock Software GmbH - www.gurock.com"""
 TOOL_USAGE = f"""Supported and loaded modules:
     - parse_junit: JUnit XML Files (& Similar)
     - parse_robot: Robot Framework XML Files

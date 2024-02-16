@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import List
 from xml.etree import ElementTree
 
+from trcli.backports import removeprefix
 from trcli.cli import Environment
 from trcli.data_classes.data_parsers import MatchersParser, FieldsParser
 from trcli.data_classes.dataclass_testrail import (
@@ -18,7 +20,7 @@ class RobotParser(FileParser):
         super().__init__(environment)
         self.case_matcher = environment.case_matcher
 
-    def parse_file(self) -> list[TestRailSuite]:
+    def parse_file(self) -> List[TestRailSuite]:
         self.env.log(f"Parsing Robot Framework report.")
         tree = ElementTree.parse(self.filepath)
         root = tree.getroot()
@@ -38,7 +40,7 @@ class RobotParser(FileParser):
 
         return testrail_suites
 
-    def _find_suites(self, suite_element, sections_list: list, namespace=""):
+    def _find_suites(self, suite_element, sections_list: List, namespace=""):
         name = suite_element.get("name")
         namespace += f".{name}" if namespace else name
         tests = suite_element.findall("test")
@@ -77,7 +79,13 @@ class RobotParser(FileParser):
                     "fail": 5
                 }
                 status_id = status_dict[status.get("status").lower()]
-                elapsed_time = self._parse_rf_time(status.get("endtime")) - self._parse_rf_time(status.get("starttime"))
+
+                # if status contains "elapsed" then obtain it, otherwise calculate it from starttime and endtime
+                if "elapsed" in status.attrib:
+                     elapsed_time = self._parse_rf70_elapsed_time(status.get("elapsed"))
+                else:
+                    elapsed_time = self._parse_rf50_time(status.get("endtime")) - self._parse_rf50_time(status.get("starttime"))
+
                 error_msg = status.text
                 keywords = test.findall("kw")
                 step_keywords = []
@@ -119,9 +127,20 @@ class RobotParser(FileParser):
             self._find_suites(sub_suite_element, sections_list, namespace=namespace)
 
     @staticmethod
-    def _parse_rf_time(time_str: str) -> datetime:
+    def _parse_rf50_time(time_str: str) -> datetime:
+        # "20230712 22:32:12.951"
         return datetime.strptime(time_str, '%Y%m%d %H:%M:%S.%f')
+    
+    @staticmethod
+    def _parse_rf70_time(time_str: str) -> datetime:
+        # "2023-07-12T22:32:12.951000"
+        return datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S.%f')
+    
+    @staticmethod
+    def _parse_rf70_elapsed_time(timedelta_str: str) -> timedelta:
+        # "0.001000"
+        return timedelta(seconds=float(timedelta_str))
 
     @staticmethod
     def _remove_tr_prefix(text: str, tr_prefix: str) -> str:
-        return text.strip().removeprefix(tr_prefix).strip()
+        return removeprefix(text, tr_prefix).strip()
